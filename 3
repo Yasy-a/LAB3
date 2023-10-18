@@ -1,0 +1,82 @@
+using System;
+using System.Collections.Generic;
+
+class Road
+{
+    public double Length { get; set; }
+    public double Width { get; set; }
+    public int NumberOfLanes { get; set; }
+    public int TrafficLevel { get; set; }
+
+    public Road(double length, double width, int numberOfLanes)
+    {
+        Length = length;
+        Width = width;
+        NumberOfLanes = numberOfLanes;
+        TrafficLevel = 0; 
+    }
+}
+
+class Vehicle : IDriveable
+{
+    public string Type { get; set; }
+    public double Speed { get; set; }
+    public double Size { get; set; }
+
+    public Vehicle(string type, double speed, double size)
+    {
+        Type = type;
+        Speed = speed;
+        Size = size;
+    }
+
+    public void Move()
+    {
+        Console.WriteLine($"Транспортний засіб ({Type}) рухається зі швидкістю {Speed} км/год.");
+    }
+
+    public void Stop()
+    {
+        Console.WriteLine($"Транспортний засіб ({Type}) зупинився.");
+    }
+}
+
+interface IDriveable
+{
+    void Move();
+    void Stop();
+}
+
+class TrafficSimulation
+{
+    public void SimulateTraffic(Road road, List<Vehicle> vehicles)
+    {
+        Console.WriteLine($"На дорозі довжиною {road.Length} км та шириною {road.Width} метрів є {road.NumberOfLanes} смуги.");
+        Console.WriteLine($"Початковий рівень трафіку: {road.TrafficLevel}");
+
+        foreach (var vehicle in vehicles)
+        {
+            vehicle.Move();
+        }
+
+        road.TrafficLevel++; 
+        Console.WriteLine($"Новий рівень трафіку: {road.TrafficLevel}");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Road road = new Road(10, 3, 2); 
+        List<Vehicle> vehicles = new List<Vehicle>
+        {
+            new Vehicle("Автомобіль", 60, 2),
+            new Vehicle("Автобус", 50, 3),
+            new Vehicle("Вантажівка", 40, 4)
+        };
+
+        TrafficSimulation trafficSimulation = new TrafficSimulation();
+        trafficSimulation.SimulateTraffic(road, vehicles);
+    }
+}
