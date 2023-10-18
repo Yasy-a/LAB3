@@ -1,0 +1,138 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class LivingOrganism
+{
+    public double Energy { get; set; }
+    public int Age { get; set; }
+    public double Size { get; set; }
+
+    public LivingOrganism(double energy, int age, double size)
+    {
+        Energy = energy;
+        Age = age;
+        Size = size;
+    }
+
+    public void Grow()
+    {
+        Age++;
+    }
+}
+
+interface IReproducible
+{
+    void Reproduce();
+}
+
+interface IPredator
+{
+    void Hunt(LivingOrganism prey);
+}
+
+class Animal : LivingOrganism, IReproducible, IPredator
+{
+    public string Species { get; set; }
+
+    public Animal(string species, double energy, int age, double size) : base(energy, age, size)
+    {
+        Species = species;
+    }
+
+    public void Reproduce()
+    {
+        Console.WriteLine($"{Species} розмножується.");
+    }
+
+    public void Hunt(LivingOrganism prey)
+    {
+        Console.WriteLine($"{Species} полює на інших організмів.");
+    }
+}
+
+class Plant : LivingOrganism, IReproducible
+{
+    public string Type { get; set; }
+
+    public Plant(string type, double energy, int age, double size) : base(energy, age, size)
+    {
+        Type = type;
+    }
+
+    public void Reproduce()
+    {
+        Console.WriteLine($"{Type} розмножується.");
+    }
+}
+
+class Microorganism : LivingOrganism, IReproducible
+{
+    public string Strain { get; set; }
+
+    public Microorganism(string strain, double energy, int age, double size) : base(energy, age, size)
+    {
+        Strain = strain;
+    }
+
+    public void Reproduce()
+    {
+        Console.WriteLine($"{Strain} розмножується.");
+    }
+}
+
+class Ecosystem
+{
+    private List<LivingOrganism> organisms = new List<LivingOrganism>();
+
+    public void AddOrganism(LivingOrganism organism)
+    {
+        organisms.Add(organism);
+    }
+
+    public void SimulateEcosystem(int years)
+    {
+        for (int year = 0; year < years; year++)
+        {
+            Console.WriteLine($"Рік {year + 1} в екосистемі:");
+            foreach (var organism in organisms)
+            {
+                organism.Grow();
+                if (organism is IReproducible reproducible)
+                {
+                    reproducible.Reproduce();
+                }
+                if (organism is IPredator predator)
+                {
+                    var potentialPrey = organisms
+                        .Where(p => p != organism)
+                        .OrderBy(p => Guid.NewGuid()) // Випадковий порядок
+                        .FirstOrDefault();
+                    if (potentialPrey != null)
+                    {
+                        predator.Hunt(potentialPrey);
+                    }
+                }
+            }
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Ecosystem ecosystem = new Ecosystem();
+        Animal lion = new Animal("Лев", 100, 5, 2);
+        Animal deer = new Animal("Лось", 50, 3, 1.5);
+        Plant tree = new Plant("Дерево", 20, 10, 4);
+        Microorganism bacteria = new Microorganism("Бактерія", 5, 1, 0.01);
+
+        ecosystem.AddOrganism(lion);
+        ecosystem.AddOrganism(elk);
+        ecosystem.AddOrganism(tree);
+        ecosystem.AddOrganism(bacteria);
+
+        ecosystem.SimulateEcosystem(10);
+    }
+}
