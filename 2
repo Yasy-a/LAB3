@@ -1,0 +1,154 @@
+using System;
+using System.Collections.Generic;
+
+class Computer
+{
+    public string IPAddress { get; set; }
+    public int Power { get; set; }
+    public string OS { get; set; }
+
+    public Computer(string ipAddress, int power, string os)
+    {
+        IPAddress = ipAddress;
+        Power = power;
+        OS = os;
+    }
+}
+
+
+interface IConnectable
+{
+    void Connect(Computer otherComputer);
+    void Disconnect(Computer otherComputer);
+    void SendData(Computer otherComputer, string data);
+    void ReceiveData(string data);
+}
+
+class Server : Computer, IConnectable
+{
+    public Server(string ipAddress, int power, string os) : base(ipAddress, power, os)
+    {
+    }
+
+    public void Connect(Computer otherComputer)
+    {
+        Console.WriteLine($"Сервер ({IPAddress}) з'єднується з {otherComputer.IPAddress}.");
+    }
+
+    public void Disconnect(Computer otherComputer)
+    {
+        Console.WriteLine($"Сервер ({IPAddress}) від'єднується від {otherComputer.IPAddress}.");
+    }
+
+    public void SendData(Computer otherComputer, string data)
+    {
+        Console.WriteLine($"Сервер ({IPAddress}) відправляє дані на {otherComputer.IPAddress}: {data}");
+    }
+
+    public void ReceiveData(string data)
+    {
+        Console.WriteLine($"Сервер ({IPAddress}) отримує дані: {data}");
+    }
+}
+
+class Workstation : Computer, IConnectable
+{
+    public Workstation(string ipAddress, int power, string os) : base(ipAddress, power, os)
+    {
+    }
+
+    public void Connect(Computer otherComputer)
+    {
+        Console.WriteLine($"Робоча станція ({IPAddress}) з'єднується з {otherComputer.IPAddress}.");
+    }
+
+    public void Disconnect(Computer otherComputer)
+    {
+        Console.WriteLine($"Робоча станція ({IPAddress}) від'єднується від {otherComputer.IPAddress}.");
+    }
+
+    public void SendData(Computer otherComputer, string data)
+    {
+        Console.WriteLine($"Робоча станція ({IPAddress}) відправляє дані на {otherComputer.IPAddress}: {data}");
+    }
+
+    public void ReceiveData(string data)
+    {
+        Console.WriteLine($"Робоча станція ({IPAddress}) отримує дані: {data}");
+    }
+}
+
+class Router : Computer, IConnectable
+{
+    public Router(string ipAddress, int power, string os) : base(ipAddress, power, os)
+    {
+    }
+
+    public void Connect(Computer otherComputer)
+    {
+        Console.WriteLine($"Маршрутизатор ({IPAddress}) з'єднує {otherComputer.IPAddress} з мережею.");
+    }
+
+    public void Disconnect(Computer otherComputer)
+    {
+        Console.WriteLine($"Маршрутизатор ({IPAddress}) відключає {otherComputer.IPAddress} від мережі.");
+    }
+
+    public void SendData(Computer otherComputer, string data)
+    {
+        Console.WriteLine($"Маршрутизатор ({IPAddress}) направляє дані на {otherComputer.IPAddress}: {data}");
+    }
+
+    public void ReceiveData(string data)
+    {
+        Console.WriteLine($"Маршрутизатор ({IPAddress}) отримує дані: {data}");
+    }
+}
+
+class Network
+{
+    private List<IConnectable> connectedDevices = new List<IConnectable>();
+
+    public void ConnectDevices(IConnectable device1, IConnectable device2)
+    {
+        device1.Connect((Computer)device2);
+        device2.Connect((Computer)device1);
+        connectedDevices.Add(device1);
+        connectedDevices.Add(device2);
+    }
+
+    public void DisconnectDevices(IConnectable device1, IConnectable device2)
+    {
+        device1.Disconnect((Computer)device2);
+        device2.Disconnect((Computer)device1);
+        connectedDevices.Remove(device1);
+        connectedDevices.Remove(device2);
+    }
+
+    public void SendData(IConnectable sender, IConnectable receiver, string data)
+    {
+        sender.SendData((Computer)receiver, data);
+        receiver.ReceiveData(data);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Network network = new Network();
+        Server server = new Server("192.168.1.1", 1000, "Windows Server");
+        Workstation workstation = new Workstation("192.168.1.2", 500, "Windows 10");
+        Router router = new Router("192.168.1.3", 100, "RouterOS");
+
+        network.ConnectDevices(server, router);
+        network.ConnectDevices(workstation, router);
+
+        network.SendData(workstation, server, "Запит на отримання файлу");
+
+        network.DisconnectDevices(workstation, router);
+        network.ConnectDevices(workstation, server);
+
+        network.SendData(server, workstation, "Відповідь із запрошеним файлом");
+    }
+}
